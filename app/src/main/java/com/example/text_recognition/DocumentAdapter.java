@@ -1,61 +1,72 @@
 package com.example.text_recognition;
 
 import android.content.Context;
+import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ViewFlipper;
 
+import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class DocumentAdapter extends BaseAdapter {
 
+
     private Context context;
     private int layout;
-    private List<Document> documentList;
+    private List<Document> arrayDocument = new ArrayList<>();
 
-    public DocumentAdapter(Context context, int layout, List<Document> documentList) {
+    DocumentAdapter(Context context, int layout, List<Document> arrayDocument) {
         this.context = context;
         this.layout = layout;
-        this.documentList = documentList;
+        this.arrayDocument = arrayDocument;
     }
 
     @Override
     public int getCount() {
-        return documentList.size();
+        return arrayDocument.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return null;
+        return arrayDocument.get(position);
     }
 
     @Override
     public long getItemId(int position) {
-        return 0;
+        return position;
     }
 
+    private class ViewHolder
+    {
+        TextView name;
+        ImageView image;
+
+    }
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View rowView = convertView;
+        ViewHolder holder = new ViewHolder();
+        if(rowView == null)
+        {
+            rowView = inflater.inflate(layout, null);
+            holder.name = rowView.findViewById(R.id.name);
+            holder.image = rowView.findViewById(R.id.imageDocument);
+            rowView.setTag(holder);
+        }else {
+            holder = (ViewHolder) rowView.getTag();
 
-        LayoutInflater inflater =(LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+        holder.name.setText(arrayDocument.get(position).getName());
+        Picasso.get().load(arrayDocument.get(position).getImage()).into(holder.image);
 
-        convertView = inflater.inflate(layout,null);
-
-        ImageView imageView = convertView.findViewById(R.id.imageDocument);
-
-        TextView textView =convertView.findViewById(R.id.nameDocument);
-
-        Document document =documentList.get(position);
-
-        textView.setText(document.getName());
-
-        imageView.setImageResource(document.getImage());
-
-
-
-        return  convertView;
+        return rowView;
     }
 }

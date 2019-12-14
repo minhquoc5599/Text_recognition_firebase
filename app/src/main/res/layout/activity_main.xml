@@ -8,13 +8,25 @@
     android:orientation="vertical"
     android:weightSum="10">
 
+
+    <androidx.appcompat.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:id="@+id/toolbarMain"
+        app:title="@string/app_name"
+        android:background="@color/colorToolBar"
+        app:layout_collapseMode="pin"
+        app:titleTextColor="#FFF">
+
+    </androidx.appcompat.widget.Toolbar>
+
     <LinearLayout
         android:layout_weight="8.5"
         android:layout_width="match_parent"
         android:layout_height="0dp">
 
         <ListView
-            android:id="@+id/lvDocumnet"
+            android:id="@+id/lvDocument"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 

@@ -1,30 +1,52 @@
 package com.example.text_recognition;
 
 public class Document {
+    private String name;
+    private String text;
+    private String image;
+    private String email;
 
-    private String Name;
-    private int image;
+    public Document()
+    {
 
-    public Document(String name, int image) {
-        this.Name = name;
+    }
+
+    public Document(String name, String text, String image, String email) {
+        this.name = name;
+        this.text = text;
         this.image = image;
+        this.email = email;
     }
 
     public String getName() {
-        return Name;
+        return name;
     }
 
     public void setName(String name) {
-        this.Name = name;
+        this.name = name;
     }
 
-    public int getImage() {
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public String getImage() {
         return image;
     }
 
-    public void setImage(int image) {
+    public void setImage(String image) {
         this.image = image;
     }
 
+    public String getEmail() {
+        return email;
+    }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }
