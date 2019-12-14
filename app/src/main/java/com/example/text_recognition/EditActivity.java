@@ -1,16 +1,16 @@
 package com.example.text_recognition;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.app.Activity;
+
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -25,7 +25,15 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.theartofdev.edmodo.cropper.CropImage;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
+
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,26 +42,19 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
+
 public class EditActivity extends AppCompatActivity {
 
-    EditText mResult;
-
-    ImageView img;
-
-    Uri imgUri;
-
-
+    EditText editText;
+    ImageView imageView;
     Button copy;
-
     Button importPDF;
-
     Button importTxt;
-
     Button shareText;
-
     Button shareImage;
-
     Toolbar toolbarOcr;
+
+    DatabaseReference mData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +62,38 @@ public class EditActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit);
 
         Connect();
-
         actionToolbar();
+
+        mData = FirebaseDatabase.getInstance().getReference("Document");
+
+        Intent intent = getIntent();
+        String name = intent.getStringExtra(MainActivity.URL_IMAGE);
+
+        Query query = mData.orderByChild("image").equalTo(name);
+
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot ds : dataSnapshot.getChildren())
+                {
+                    String text = "" + ds.child("text").getValue();
+                    editText.setText(text);
+                    String image = "" + ds.child("image").getValue();
+                    try{
+                        Picasso.get().load(image).into(imageView);
+                    }catch(Exception e)
+                    {
+                        Picasso.get().load(R.drawable.error).into(imageView);
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
 
         copy.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,8 +154,8 @@ public class EditActivity extends AppCompatActivity {
     private void Connect() {
 
         toolbarOcr = findViewById(R.id.toolbarOcr);
-        mResult = findViewById(R.id.result);
-        img = findViewById(R.id.imageResult);
+        editText = findViewById(R.id.result);
+        imageView = findViewById(R.id.imageResult);
         copy = findViewById(R.id.btnCopy);
         importPDF = findViewById(R.id.importPDF);
         importTxt = findViewById(R.id.importTxt);
@@ -133,7 +164,7 @@ public class EditActivity extends AppCompatActivity {
     }
 
     private void shareImage() {
-        BitmapDrawable bitmapDrawable = (BitmapDrawable) img.getDrawable();
+        BitmapDrawable bitmapDrawable = (BitmapDrawable) imageView.getDrawable();
         Bitmap bitmap = bitmapDrawable.getBitmap();
 
         try {
@@ -164,7 +195,7 @@ public class EditActivity extends AppCompatActivity {
     }
 
     private void shareText() {
-        String text = mResult.getText().toString();
+        String text = editText.getText().toString();
 
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
@@ -175,14 +206,14 @@ public class EditActivity extends AppCompatActivity {
 
     private void copyToClipBoard() {
         ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText("EditText", mResult.getText().toString());
+        ClipData clip = ClipData.newPlainText("EditText", editText.getText().toString());
         clipboardManager.setPrimaryClip(clip);
 
         Toast.makeText(EditActivity.this, "Text copied to clipboard", Toast.LENGTH_SHORT).show();
 
     }
     private void imageToPdf() {
-        BitmapDrawable bitmapDrawable = (BitmapDrawable) img.getDrawable();
+        BitmapDrawable bitmapDrawable = (BitmapDrawable) imageView.getDrawable();
         Bitmap bitmap = bitmapDrawable.getBitmap();
 
         PdfDocument pdfDocument = new PdfDocument();
@@ -207,34 +238,57 @@ public class EditActivity extends AppCompatActivity {
 
         File folder = new File(Environment.getExternalStorageDirectory(),"Text_recognition");
 
-        File folder_2 = new File(folder, namePdf);
-
-        if(!folder.exists() || !folder_2.exists())
+        if(!folder.exists())
         {
-            folder.mkdir();
-            folder_2.mkdir();
+            boolean mkdir = folder.mkdir();
+            if(!mkdir)
+            {
+                Toast.makeText(EditActivity.this, "Tạo thư mục thất bại!!!", Toast.LENGTH_SHORT).show();
+            }
+            else
+            {
+                File folder_2 = new File(folder, namePdf);
+                File filePdf = new File(folder_2, namePdf + ".pdf");
+
+                try
+                {
+                    FileOutputStream fileOutputStream = new FileOutputStream(filePdf);
+                    pdfDocument.writeTo(fileOutputStream);
+
+                    Toast.makeText(EditActivity.this,"Image is saved to " + namePdf +".pdf", Toast.LENGTH_SHORT).show();
+                }catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+
+                pdfDocument.close();
+            }
+        }
+        else
+        {
+            File folder_2 = new File(folder, namePdf);
+            File filePdf = new File(folder_2, namePdf + ".pdf");
+
+            try
+            {
+                FileOutputStream fileOutputStream = new FileOutputStream(filePdf);
+                pdfDocument.writeTo(fileOutputStream);
+
+                Toast.makeText(EditActivity.this,"Image is saved to " + namePdf +".pdf", Toast.LENGTH_SHORT).show();
+            }catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+
+            pdfDocument.close();
         }
 
-        File filePdf = new File(folder_2, namePdf + ".pdf");
-
-        try
-        {
-            FileOutputStream fileOutputStream = new FileOutputStream(filePdf);
-            pdfDocument.writeTo(fileOutputStream);
-
-            Toast.makeText(EditActivity.this,"Image is saved to " + namePdf +".pdf", Toast.LENGTH_SHORT).show();
-        }catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-
-        pdfDocument.close();
 
     }
 
     private void textToTxt() {
 
-        String text = mResult.getText().toString();
+        String text = editText.getText().toString();
 
         String nameTxt = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(System.currentTimeMillis());
 

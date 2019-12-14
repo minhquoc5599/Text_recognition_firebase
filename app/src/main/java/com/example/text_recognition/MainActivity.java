@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Document> arrayDocument ;
     DatabaseReference mData;
     DocumentAdapter adapter = null;
-
+    public static final String URL_IMAGE = "URL_IMAGE";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +77,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(MainActivity.this, EditActivity.class);
+                String image = arrayDocument.get(position).getImage();
+                intent.putExtra(URL_IMAGE, image);
                 startActivity(intent);
             }
         });
