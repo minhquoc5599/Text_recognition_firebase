@@ -34,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
     DatabaseReference mData;
     DocumentAdapter adapter = null;
     public static final String URL_IMAGE = "URL_IMAGE";
+    FirebaseAuth mAuth =FirebaseAuth.getInstance();
+    FirebaseUser user = mAuth.getCurrentUser();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void LoadData()
     {
-        mData.child("Document").addChildEventListener(new ChildEventListener() {
+        mData.child("Document").orderByChild("email").equalTo(user.getEmail()).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 Document document = dataSnapshot.getValue(Document.class);
