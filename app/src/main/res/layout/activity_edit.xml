@@ -21,7 +21,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="6">
+        android:layout_weight="8">
 
         <ScrollView
             android:layout_width="match_parent"
@@ -100,173 +100,89 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="4"
-        android:gravity="center"
-        android:weightSum="4"
-        android:orientation="vertical">
+        android:layout_weight="2"
+        android:orientation="vertical"
+        android:gravity="center">
 
-        <LinearLayout
+        <HorizontalScrollView
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:weightSum="2">
-
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp">
             <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical|center">
-
-                <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:textAlignment="center"
+                    android:padding="10dp"
                     android:id="@+id/btnEditImage"
-                    android:layout_width="wrap_content"
+                    android:layout_width="116dp"
                     android:layout_height="wrap_content"
                     android:text="Edit Image"
+                    android:drawableTop="@drawable/ic_edit"
                     android:textSize="20sp"/>
 
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical|center">
-
-                <Button
+                <TextView
+                    android:textAlignment="center"
+                    android:padding="10dp"
                     android:id="@+id/btnCopy"
-                    android:layout_width="wrap_content"
+                    android:layout_width="116dp"
                     android:layout_height="wrap_content"
                     android:text="Copy"
+                    android:drawableTop="@drawable/ic_copy"
                     android:textSize="20sp"/>
 
-            </LinearLayout>
-
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:weightSum="2">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical|center">
-
-                <Button
+                <TextView
+                    android:textAlignment="center"
+                    android:padding="10dp"
                     android:id="@+id/importTxt"
-                    android:layout_width="wrap_content"
+                    android:layout_width="116dp"
                     android:layout_height="wrap_content"
                     android:text="Import txt"
+                    android:drawableTop="@drawable/ic_text"
                     android:textSize="20sp"/>
 
-            </LinearLayout>
-
-
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical|center">
-
-                <Button
+                <TextView
+                    android:textAlignment="center"
+                    android:padding="10dp"
                     android:id="@+id/importPDF"
-                    android:layout_width="wrap_content"
+                    android:layout_width="116dp"
                     android:layout_height="wrap_content"
                     android:text="Import Pdf"
+                    android:drawableTop="@drawable/ic_pdf"
                     android:textSize="20sp"/>
 
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:weightSum="2">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical|center">
-
-                <Button
-                    android:id="@+id/shareText"
-                    android:layout_width="wrap_content"
+                <TextView
+                    android:textAlignment="center"
+                    android:padding="10dp"
+                    android:id="@+id/share"
+                    android:layout_width="116dp"
                     android:layout_height="wrap_content"
-                    android:text="Share Text"
+                    android:text="Share"
+                    android:drawableTop="@drawable/ic_share"
                     android:textSize="20sp"/>
 
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical|center">
-
-                <Button
-                    android:id="@+id/shareImage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Share Image"
-                    android:textSize="20sp"/>
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:weightSum="2">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical|center">
-
-                <Button
+                <TextView
+                    android:textAlignment="center"
+                    android:padding="10dp"
                     android:id="@+id/btnUpdate"
-                    android:layout_width="wrap_content"
+                    android:layout_width="116dp"
                     android:layout_height="wrap_content"
                     android:text="Update"
+                    android:drawableTop="@drawable/ic_upload"
                     android:textSize="20sp"/>
 
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical|center">
-
-                <Button
+                <TextView
+                    android:textAlignment="center"
+                    android:padding="10dp"
                     android:id="@+id/btnDelete"
-                    android:layout_width="wrap_content"
+                    android:layout_width="116dp"
                     android:layout_height="wrap_content"
                     android:text="Delete"
+                    android:drawableTop="@drawable/ic_delete"
                     android:textSize="20sp"/>
-
             </LinearLayout>
-
-        </LinearLayout>
-
+        </HorizontalScrollView>
     </LinearLayout>
 
 

@@ -2,6 +2,7 @@ package com.example.text_recognition;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -9,6 +10,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -20,18 +22,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.google.android.gms.tasks.OnCompleteListener;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -55,11 +54,11 @@ public class EditActivity extends AppCompatActivity {
 
     EditText editText;
     ImageView imageView;
-    Button copy, importPDF, importTxt, shareText, shareImage, update, delete;
+    TextView copy, importPDF, importTxt, share, update, delete;
     Toolbar toolbarOcr;
-    FirebaseAuth mAuth;
-    DatabaseReference mData;
-    FirebaseStorage storage;
+    DatabaseReference mData =FirebaseDatabase.getInstance().getReference();
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,42 +67,11 @@ public class EditActivity extends AppCompatActivity {
 
         Connect();
         actionToolbar();
-
-        mData = FirebaseDatabase.getInstance().getReference();
-        mAuth = FirebaseAuth.getInstance();
-        FirebaseUser user = mAuth.getCurrentUser();
-        storage = FirebaseStorage.getInstance();
-
         Intent intent = getIntent();
-        final String image = intent.getStringExtra(MainActivity.URL_IMAGE);
-
+        String image = intent.getStringExtra(MainActivity.URL_IMAGE);
         final Query query = mData.child("Document").orderByChild("image").equalTo(image);
-
-        query.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for(DataSnapshot ds : dataSnapshot.getChildren())
-                {
-                    String text = "" + ds.child("text").getValue();
-                    editText.setText(text);
-                    String image = "" + ds.child("image").getValue();
-                    try{
-                        Picasso.get().load(image).into(imageView);
-                    }catch(Exception e)
-                    {
-                        Picasso.get().load(R.drawable.error).into(imageView);
-                    }
-
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(EditActivity.this, "Lỗi!!!", Toast.LENGTH_SHORT).show();
-
-            }
-        });
-
+        final StorageReference mImage = storage.getReferenceFromUrl(image);
+        LoadData(query);
 
         copy.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -130,65 +98,128 @@ public class EditActivity extends AppCompatActivity {
             }
         });
 
-        shareText.setOnClickListener(new View.OnClickListener() {
+        share.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                showShare();
 
-                shareText();
-
-            }
-        });
-
-        shareImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                shareImage();
             }
         });
 
         update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Update(query);
             }
         });
+
 
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Query queryDelete = mData.child("Document").orderByChild("image").equalTo(image);
-                queryDelete.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        for(DataSnapshot ds: dataSnapshot.getChildren())
-                        {
-                            ds.getRef().removeValue();
-                        }
-                        Toast.makeText(EditActivity.this,"Xoá file thành công", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        Toast.makeText(EditActivity.this, "Lỗi không thể xoá", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-                StorageReference mImage = storage.getReferenceFromUrl(image);
-                mImage.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Toast.makeText(EditActivity.this, "Xoá ảnh thành công", Toast.LENGTH_SHORT).show();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(EditActivity.this, "Lỗi: "+ e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-                Intent intent = new Intent(EditActivity.this, MainActivity.class);
-                startActivity(intent);
+                Delete(query, mImage);
             }
         });
 
+    }
+
+    private void showShare() {
+        String [] items ={"Share Text", "Share Image"};
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("Share");
+        dialog.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(which == 0)
+                {
+                    shareText();
+                }
+                if(which == 1)
+                {
+                    shareImage();
+                }
+            }
+        });
+        dialog.create().show();
+    }
+
+    private void Update(Query query) {
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot ds: dataSnapshot.getChildren())
+                {
+                    String text = editText.getText().toString();
+                    ds.getRef().child("text").setValue(text);
+                }
+                Toast.makeText(EditActivity.this,"Đã lưu", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(EditActivity.this, "Lỗi không thể lưu", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
+    private void Delete(Query query, StorageReference mImage) {
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot ds: dataSnapshot.getChildren())
+                {
+                    ds.getRef().removeValue();
+                }
+                Toast.makeText(EditActivity.this,"Xoá file thành công", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(EditActivity.this, "Lỗi không thể xoá", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        mImage.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(EditActivity.this, "Xoá ảnh thành công", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(EditActivity.this, "Lỗi: "+ e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+        Intent intent = new Intent(EditActivity.this, MainActivity.class);
+        startActivity(intent);
+    }
+
+    private void LoadData(Query query) {
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot ds : dataSnapshot.getChildren())
+                {
+                    String text = "" + ds.child("text").getValue();
+                    editText.setText(text);
+                    String image = "" + ds.child("image").getValue();
+                    try{
+                        Picasso.get().load(image).into(imageView);
+                    }catch(Exception e)
+                    {
+                        Picasso.get().load(R.drawable.error).into(imageView);
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(EditActivity.this, "Lỗi!!!", Toast.LENGTH_SHORT).show();
+
+            }
+        });
     }
 
     private void actionToolbar() {
@@ -211,8 +242,7 @@ public class EditActivity extends AppCompatActivity {
         copy = findViewById(R.id.btnCopy);
         importPDF = findViewById(R.id.importPDF);
         importTxt = findViewById(R.id.importTxt);
-        shareText = findViewById(R.id.shareText);
-        shareImage = findViewById(R.id.shareImage);
+        share = findViewById(R.id.share);
         update = findViewById(R.id.btnUpdate);
         delete = findViewById(R.id.btnDelete);
     }
