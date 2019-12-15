@@ -4,9 +4,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -20,6 +21,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
 
+    Window window;
     Button btnLogin;
     EditText loginEmail, loginPass;
     TextView txtCreate, txtForgot;
@@ -31,6 +33,11 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        if(Build.VERSION.SDK_INT>=23)
+        {
+            window=this.getWindow();
+            window.setStatusBarColor(this.getResources().getColor(R.color.colorWhile));
+        }
         count = false;
         mAuth = FirebaseAuth.getInstance();
         Mapping();

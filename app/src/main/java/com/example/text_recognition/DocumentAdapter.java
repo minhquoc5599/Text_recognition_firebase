@@ -1,18 +1,14 @@
 package com.example.text_recognition;
 
 import android.content.Context;
-import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.ViewFlipper;
-
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class DocumentAdapter extends BaseAdapter {
@@ -20,7 +16,7 @@ public class DocumentAdapter extends BaseAdapter {
 
     private Context context;
     private int layout;
-    private List<Document> arrayDocument = new ArrayList<>();
+    private List<Document> arrayDocument;
 
     DocumentAdapter(Context context, int layout, List<Document> arrayDocument) {
         this.context = context;

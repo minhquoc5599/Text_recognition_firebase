@@ -135,20 +135,20 @@
                 <TextView
                     android:textAlignment="center"
                     android:padding="10dp"
-                    android:id="@+id/importTxt"
+                    android:id="@+id/exportTxt"
                     android:layout_width="116dp"
                     android:layout_height="wrap_content"
-                    android:text="Import txt"
+                    android:text="Export txt"
                     android:drawableTop="@drawable/ic_text"
                     android:textSize="20sp"/>
 
                 <TextView
                     android:textAlignment="center"
                     android:padding="10dp"
-                    android:id="@+id/importPDF"
+                    android:id="@+id/exportPDF"
                     android:layout_width="116dp"
                     android:layout_height="wrap_content"
-                    android:text="Import Pdf"
+                    android:text="Export Pdf"
                     android:drawableTop="@drawable/ic_pdf"
                     android:textSize="20sp"/>
 

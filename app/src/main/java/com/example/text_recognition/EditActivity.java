@@ -5,13 +5,16 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 
 
+import android.Manifest;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -54,10 +57,13 @@ public class EditActivity extends AppCompatActivity {
 
     EditText editText;
     ImageView imageView;
-    TextView copy, importPDF, importTxt, share, update, delete;
+    TextView copy, exportPDF, exportTxt, share, update, delete;
     Toolbar toolbarOcr;
     DatabaseReference mData =FirebaseDatabase.getInstance().getReference();
     FirebaseStorage storage = FirebaseStorage.getInstance();
+    int REQUEST_CODE_READ_WRITE_STORAGE_PDF = 123;
+    int REQUEST_CODE_READ_WRITE_STORAGE_TEXT = 133;
+
 
 
     @Override
@@ -70,31 +76,35 @@ public class EditActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String image = intent.getStringExtra(MainActivity.URL_IMAGE);
         final Query query = mData.child("Document").orderByChild("image").equalTo(image);
+        assert image != null;
         final StorageReference mImage = storage.getReferenceFromUrl(image);
         LoadData(query);
 
         copy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 copyToClipBoard();
             }
         });
 
-        importPDF.setOnClickListener(new View.OnClickListener() {
+        exportPDF.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                imageToPdf();
+                ActivityCompat.requestPermissions(EditActivity.this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                Manifest.permission.READ_EXTERNAL_STORAGE},
+                        REQUEST_CODE_READ_WRITE_STORAGE_PDF);
             }
         });
 
-        importTxt.setOnClickListener(new View.OnClickListener() {
+        exportTxt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                ActivityCompat.requestPermissions(EditActivity.this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                Manifest.permission.READ_EXTERNAL_STORAGE},
+                        REQUEST_CODE_READ_WRITE_STORAGE_TEXT);
                 textToTxt();
-
             }
         });
 
@@ -121,6 +131,25 @@ public class EditActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode==REQUEST_CODE_READ_WRITE_STORAGE_PDF && grantResults.length>0 && grantResults[0]==PackageManager.PERMISSION_GRANTED)
+        {
+            imageToPdf();
+        }
+        else if(requestCode==REQUEST_CODE_READ_WRITE_STORAGE_TEXT && grantResults.length>0 && grantResults[0]==PackageManager.PERMISSION_GRANTED)
+        {
+            textToTxt();
+        }
+        else
+        {
+            Toast.makeText(EditActivity.this,"Bạn không thẻ ghi file", Toast.LENGTH_SHORT).show();
+        }
+
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     private void showShare() {
@@ -225,7 +254,10 @@ public class EditActivity extends AppCompatActivity {
     private void actionToolbar() {
         setSupportActionBar(toolbarOcr);
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        if(actionBar!=null)
+        {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
         toolbarOcr.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -240,8 +272,8 @@ public class EditActivity extends AppCompatActivity {
         editText = findViewById(R.id.result);
         imageView = findViewById(R.id.imageResult);
         copy = findViewById(R.id.btnCopy);
-        importPDF = findViewById(R.id.importPDF);
-        importTxt = findViewById(R.id.importTxt);
+        exportPDF = findViewById(R.id.exportPDF);
+        exportTxt = findViewById(R.id.exportTxt);
         share = findViewById(R.id.share);
         update = findViewById(R.id.btnUpdate);
         delete = findViewById(R.id.btnDelete);
@@ -267,13 +299,9 @@ public class EditActivity extends AppCompatActivity {
         }catch (FileNotFoundException e){
             e.printStackTrace();
             Toast.makeText(EditActivity.this, "File not found", Toast.LENGTH_SHORT).show();
-        }catch (IOException e){
-            e.printStackTrace();
-        }catch (Exception e) {
+        } catch (Exception e){
             e.printStackTrace();
         }
-
-
 
 
     }
@@ -291,8 +319,10 @@ public class EditActivity extends AppCompatActivity {
     private void copyToClipBoard() {
         ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("EditText", editText.getText().toString());
-        clipboardManager.setPrimaryClip(clip);
-
+        if(clipboardManager!=null)
+        {
+            clipboardManager.setPrimaryClip(clip);
+        }
         Toast.makeText(EditActivity.this, "Text copied to clipboard", Toast.LENGTH_SHORT).show();
 
     }
@@ -320,50 +350,44 @@ public class EditActivity extends AppCompatActivity {
         // save bitmap image
         String namePdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(System.currentTimeMillis());
 
-        File folder = new File(Environment.getExternalStorageDirectory(),"Text_recognition");
+        File folder = new File(Environment.getExternalStorageDirectory(), "Text_recognition");
+
+        boolean mkdir = true;
 
         if(!folder.exists())
         {
-            boolean mkdir = folder.mkdir();
-            if(!mkdir)
-            {
-                Toast.makeText(EditActivity.this, "Tạo thư mục thất bại!!!", Toast.LENGTH_SHORT).show();
-            }
-            else
-            {
-                File folder_2 = new File(folder, namePdf);
-                File filePdf = new File(folder_2, namePdf + ".pdf");
+            mkdir = folder.mkdir();
 
-                try
-                {
-                    FileOutputStream fileOutputStream = new FileOutputStream(filePdf);
-                    pdfDocument.writeTo(fileOutputStream);
-
-                    Toast.makeText(EditActivity.this,"Image is saved to " + namePdf +".pdf", Toast.LENGTH_SHORT).show();
-                }catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
-
-                pdfDocument.close();
-            }
+        }
+        if(!mkdir)
+        {
+            Toast.makeText(EditActivity.this, "Tạo thư mục thất bại!!!", Toast.LENGTH_SHORT).show();
         }
         else
         {
-            File folder_2 = new File(folder, namePdf);
-            File filePdf = new File(folder_2, namePdf + ".pdf");
-
+            File filePdf = new File(folder, namePdf + ".pdf");
+            FileOutputStream fileOutputStream = null;
             try
             {
-                FileOutputStream fileOutputStream = new FileOutputStream(filePdf);
+                fileOutputStream = new FileOutputStream(filePdf);
                 pdfDocument.writeTo(fileOutputStream);
-
-                Toast.makeText(EditActivity.this,"Image is saved to " + namePdf +".pdf", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EditActivity.this,"Image is saved to " + folder+ "/"+ namePdf +".pdf", Toast.LENGTH_SHORT).show();
             }catch (IOException e)
             {
                 e.printStackTrace();
-            }
+            }finally {
+                if(fileOutputStream!= null)
+                {
+                    try{
+                        fileOutputStream.close();
+                    }catch(IOException e)
+                    {
+                        e.printStackTrace();
+                    }
 
+                }
+
+            }
             pdfDocument.close();
         }
 
@@ -378,33 +402,38 @@ public class EditActivity extends AppCompatActivity {
 
         File folder = new File(Environment.getExternalStorageDirectory(),"Text_recognition");
 
-        File newTxt = new File(folder,nameTxt + ".txt");
+        boolean mkdir = true;
 
-        FileOutputStream fout = null;
-
-
-        try{
-            fout = new FileOutputStream(newTxt);
-            fout.write(text.getBytes());
-
-
-            Toast.makeText(EditActivity.this, "Text is saved to " + nameTxt +".txt",Toast.LENGTH_SHORT).show();
-        }catch (FileNotFoundException e)
+        if(!folder.exists())
         {
-            e.printStackTrace();
-        }catch (IOException e)
+            mkdir = folder.mkdir();
+        }
+        if(!mkdir)
         {
-            e.printStackTrace();
-        }finally {
-            if(fout!= null)
+            Toast.makeText(EditActivity.this, "Tạo thư mục thất bại!!!", Toast.LENGTH_SHORT).show();
+        }
+        else
+        {
+            File newTxt = new File(folder,nameTxt + ".txt");
+            FileOutputStream fout = null;
+            try{
+                fout = new FileOutputStream(newTxt);
+                fout.write(text.getBytes());
+                Toast.makeText(EditActivity.this, "Text is saved to " +folder +"/" + nameTxt +".txt",Toast.LENGTH_SHORT).show();
+            } catch (IOException e)
             {
-                try{
-                    fout.close();
-                }catch(IOException e)
+                e.printStackTrace();
+            } finally {
+                if(fout!= null)
                 {
-                    e.printStackTrace();
-                }
+                    try{
+                        fout.close();
+                    }catch(IOException e)
+                    {
+                        e.printStackTrace();
+                    }
 
+                }
             }
         }
 
