@@ -2,9 +2,11 @@ package com.example.text_recognition;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -58,9 +60,18 @@ public class MainActivity extends AppCompatActivity {
             public boolean onMenuItemClick(MenuItem item) {
                 if(item.getItemId()==R.id.menuLogout)
                 {
-                    FirebaseAuth.getInstance().signOut();
-                    Intent comeback = new Intent(MainActivity.this, LoginActivity.class);
-                    startActivity(comeback);
+                    AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                    dialog.setMessage("Are you sign out ?")
+                            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    FirebaseAuth.getInstance().signOut();
+                                    Intent comeback = new Intent(MainActivity.this, LoginActivity.class);
+                                    startActivity(comeback);
+                                }
+                            })
+                            .setNegativeButton("Cancel", null);
+                    dialog.create().show();
                 }
                 return false;
             }
@@ -82,6 +93,21 @@ public class MainActivity extends AppCompatActivity {
                 String image = arrayDocument.get(position).getImage();
                 intent.putExtra(URL_IMAGE, image);
                 startActivity(intent);
+            }
+        });
+        lvDocument.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                dialog.setMessage("Do you remove ?")
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        })
+                        .setNegativeButton("Cancel", null);
+                return false;
             }
         });
 
@@ -137,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
         if(!count)
         {
             count = true;
-            Toast.makeText(this, "Quay về lần nữa để thoát chương trình", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Chạm lần nữa để thoát", Toast.LENGTH_SHORT).show();
         }
         else
         {

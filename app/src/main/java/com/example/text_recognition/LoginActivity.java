@@ -50,10 +50,6 @@ public class LoginActivity extends AppCompatActivity {
                 {
                     Toast.makeText(LoginActivity.this, "Bạn đã đăng nhập", Toast.LENGTH_SHORT).show();
                 }
-                else
-                {
-                    Toast.makeText(LoginActivity.this, "Xin hãy đăng nhập", Toast.LENGTH_SHORT).show();
-                }
             }
         };
 
@@ -136,7 +132,7 @@ public class LoginActivity extends AppCompatActivity {
         // Do Here what ever you want do on back press;
         if(!count){
             count = true;
-            Toast.makeText(this, "Quay về lần nữa để thoát chương trình", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Chạm lần nữa để thoát", Toast.LENGTH_SHORT).show();
         } else{
             Intent startMain = new Intent(Intent.ACTION_MAIN);
             startMain.addCategory(Intent.CATEGORY_HOME);
