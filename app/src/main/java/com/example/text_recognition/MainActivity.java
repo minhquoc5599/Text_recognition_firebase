@@ -6,6 +6,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +16,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -23,6 +26,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 
@@ -38,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String URL_IMAGE = "URL_IMAGE";
     FirebaseAuth mAuth =FirebaseAuth.getInstance();
     FirebaseUser user = mAuth.getCurrentUser();
+    FirebaseStorage storage = FirebaseStorage.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,22 +103,58 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        //Delete file in list view
         lvDocument.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                String image = arrayDocument.get(position).getImage();
+                final Query query = mData.child("Document").orderByChild("image").equalTo(image);
+                assert image != null;
+                final StorageReference mImage = storage.getReferenceFromUrl(image);
                 AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
-                dialog.setMessage("Do you remove ?")
+                dialog.setMessage("Do you want remove ?")
                         .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-
+                                Delete(query, mImage);
                             }
                         })
                         .setNegativeButton("Cancel", null);
+                dialog.create().show();
                 return false;
             }
         });
 
+    }
+
+    private void Delete(Query query, StorageReference mImage) {
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot ds: dataSnapshot.getChildren())
+                {
+                    ds.getRef().removeValue();
+                }
+                Toast.makeText(MainActivity.this,"Xoá file thành công", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(MainActivity.this, "Lỗi không thể xoá", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        mImage.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(MainActivity.this, "Xoá ảnh thành công", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(MainActivity.this, "Lỗi: "+ e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void LoadData()
