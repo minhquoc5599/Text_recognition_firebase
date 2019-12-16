@@ -49,6 +49,8 @@ public class LoginActivity extends AppCompatActivity {
                 if(mFirebaseUser!= null)
                 {
                     Toast.makeText(LoginActivity.this, "Bạn đã đăng nhập", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    startActivity(intent);
                 }
             }
         };

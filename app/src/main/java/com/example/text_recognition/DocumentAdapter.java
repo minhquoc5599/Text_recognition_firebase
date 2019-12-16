@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+import java.util.Locale;
 
 public class DocumentAdapter extends BaseAdapter {
 
@@ -65,4 +66,14 @@ public class DocumentAdapter extends BaseAdapter {
 
         return rowView;
     }
+
+//    public void filter(String charText)
+//    {
+//        charText = charText.toLowerCase(Locale.getDefault());
+//        arrayDocument.clear();
+//        if(charText.length()==0)
+//        {
+//            arrayDocument.addAll();
+//        }
+//    }
 }

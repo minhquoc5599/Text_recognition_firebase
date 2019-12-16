@@ -145,7 +145,7 @@ public class EditActivity extends AppCompatActivity {
         }
         else
         {
-            Toast.makeText(EditActivity.this,"Bạn không thẻ ghi file", Toast.LENGTH_SHORT).show();
+            Toast.makeText(EditActivity.this,"Bạn không thể ghi file", Toast.LENGTH_SHORT).show();
         }
 
 

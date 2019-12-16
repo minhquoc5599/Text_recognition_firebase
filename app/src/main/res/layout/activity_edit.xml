@@ -180,7 +180,7 @@
                     android:id="@+id/btnDelete"
                     android:layout_width="95dp"
                     android:layout_height="wrap_content"
-                    android:text="Delete"
+                    android:text="Remove"
                     android:drawableTop="@drawable/ic_delete"
                     android:textSize="15sp"/>
             </LinearLayout>

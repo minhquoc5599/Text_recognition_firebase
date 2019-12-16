@@ -6,7 +6,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -81,6 +80,26 @@ public class MainActivity extends AppCompatActivity {
                             .setNegativeButton("Cancel", null);
                     dialog.create().show();
                 }
+//                if(item.getItemId()==R.id.menuSearch)
+//                {
+//                    MenuItem myActionMenuItem = toolbar.getMenu().findItem(R.id.menuSearch);
+//                    SearchView searchView = (SearchView)myActionMenuItem.getActionView();
+//                    searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+//                        @Override
+//                        public boolean onQueryTextSubmit(String query) {
+//                            return false;
+//                        }
+//
+//                        @Override
+//                        public boolean onQueryTextChange(String newText) {
+//                            if(TextUtils.isEmpty(newText))
+//                            {
+//
+//                            }
+//                            return false;
+//                        }
+//                    });
+//                }
                 return false;
             }
         });
@@ -108,11 +127,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 String image = arrayDocument.get(position).getImage();
+                String name = arrayDocument.get(position).getName();
                 final Query query = mData.child("Document").orderByChild("image").equalTo(image);
                 assert image != null;
                 final StorageReference mImage = storage.getReferenceFromUrl(image);
                 AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
-                dialog.setMessage("Do you want remove ?")
+                dialog.setMessage("Do you want remove "+ name +" ?")
                         .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -121,11 +141,12 @@ public class MainActivity extends AppCompatActivity {
                         })
                         .setNegativeButton("Cancel", null);
                 dialog.create().show();
-                return false;
+                return true;
             }
         });
 
     }
+
 
     private void Delete(Query query, StorageReference mImage) {
         query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -192,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
     private void Connect() {
         btn =findViewById(R.id.icAdd);
         toolbar = findViewById(R.id.toolbarMain);
-        toolbar.inflateMenu(R.menu.menu_logout);
+        toolbar.inflateMenu(R.menu.menu);
         lvDocument = findViewById(R.id.lvDocument);
     }
 
