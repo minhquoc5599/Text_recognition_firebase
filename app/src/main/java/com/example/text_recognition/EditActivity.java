@@ -24,6 +24,7 @@ import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.SparseArray;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -34,6 +35,9 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.text.TextBlock;
+import com.google.android.gms.vision.text.TextRecognizer;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -57,7 +61,7 @@ public class EditActivity extends AppCompatActivity {
 
     EditText editText;
     ImageView imageView;
-    TextView copy, exportPDF, exportTxt, share, update, delete;
+    TextView copy, exportPDF, exportTxt, share, update, delete, ocr;
     Toolbar toolbarOcr;
     DatabaseReference mData =FirebaseDatabase.getInstance().getReference();
     FirebaseStorage storage = FirebaseStorage.getInstance();
@@ -123,7 +127,6 @@ public class EditActivity extends AppCompatActivity {
             }
         });
 
-
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -131,7 +134,14 @@ public class EditActivity extends AppCompatActivity {
             }
         });
 
+        ocr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Ocr();
+            }
+        });
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -152,6 +162,29 @@ public class EditActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+    private void Ocr() {
+        BitmapDrawable bitmapDrawable = (BitmapDrawable) imageView.getDrawable();
+
+        Bitmap bitmap = bitmapDrawable.getBitmap();
+
+        TextRecognizer recognizer = new TextRecognizer.Builder(getApplicationContext()).build();
+
+
+        if (!recognizer.isOperational()) {
+            Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
+        } else {
+            Frame frame = new Frame.Builder().setBitmap(bitmap).build();
+            SparseArray<TextBlock> items = recognizer.detect(frame);
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int i = 0; i < items.size(); i++) {
+                TextBlock myItem = items.valueAt(i);
+                stringBuilder.append(myItem.getValue());
+                stringBuilder.append("\n");
+
+            }
+            editText.setText(stringBuilder.toString());
+        }
+    }
     private void showShare() {
         String [] items ={"Share Text", "Share Image"};
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
@@ -277,6 +310,7 @@ public class EditActivity extends AppCompatActivity {
         share = findViewById(R.id.share);
         update = findViewById(R.id.btnUpdate);
         delete = findViewById(R.id.btnDelete);
+        ocr = findViewById(R.id.btnOcr);
     }
 
     private void shareImage() {

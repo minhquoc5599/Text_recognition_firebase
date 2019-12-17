@@ -165,29 +165,6 @@ public class OcrActivity extends AppCompatActivity {
 
                 img.setImageURI(imgUri);
 
-
-                BitmapDrawable bitmapDrawable = (BitmapDrawable) img.getDrawable();
-
-                Bitmap bitmap = bitmapDrawable.getBitmap();
-
-                TextRecognizer recognizer = new TextRecognizer.Builder(getApplicationContext()).build();
-
-
-                if (!recognizer.isOperational()) {
-                    Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
-                } else {
-                    Frame frame = new Frame.Builder().setBitmap(bitmap).build();
-                    SparseArray<TextBlock> items = recognizer.detect(frame);
-                    StringBuilder stringBuilder = new StringBuilder();
-                    for (int i = 0; i < items.size(); i++) {
-                        TextBlock myItem = items.valueAt(i);
-                        stringBuilder.append(myItem.getValue());
-                        stringBuilder.append("\n");
-
-                    }
-
-                    mResult.setText(stringBuilder.toString());
-                }
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 assert result != null;
                 Exception error = result.getError();
