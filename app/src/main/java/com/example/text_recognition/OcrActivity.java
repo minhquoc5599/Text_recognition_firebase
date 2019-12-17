@@ -39,7 +39,7 @@ import java.util.Calendar;
 
 public class OcrActivity extends AppCompatActivity {
 
-    EditText mResult, nameDoc;
+    EditText  nameDoc;
     ImageView img;
     Uri imgUri;
     Toolbar toolbarOcr;
@@ -101,7 +101,7 @@ public class OcrActivity extends AppCompatActivity {
 
                                         // create node database
                                         String name = nameDoc.getText().toString();
-                                        String text = mResult.getText().toString();
+                                        String text = "";
                                         assert user != null;
                                         String email = user.getEmail();
                                         Document document = new Document(name, text, downloadUri, email);
@@ -146,7 +146,6 @@ public class OcrActivity extends AppCompatActivity {
     }
 
     private void Connect() {
-        mResult = findViewById(R.id.result);
         img = findViewById(R.id.imageResult);
         nameDoc = findViewById(R.id.nameDocument);
         toolbarOcr = findViewById(R.id.toolbarOcr);
