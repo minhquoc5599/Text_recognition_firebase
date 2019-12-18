@@ -67,13 +67,4 @@ public class DocumentAdapter extends BaseAdapter {
         return rowView;
     }
 
-//    public void filter(String charText)
-//    {
-//        charText = charText.toLowerCase(Locale.getDefault());
-//        arrayDocument.clear();
-//        if(charText.length()==0)
-//        {
-//            arrayDocument.addAll();
-//        }
-//    }
 }

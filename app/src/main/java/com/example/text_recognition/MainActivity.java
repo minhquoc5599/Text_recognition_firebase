@@ -80,26 +80,6 @@ public class MainActivity extends AppCompatActivity {
                             .setNegativeButton("Cancel", null);
                     dialog.create().show();
                 }
-//                if(item.getItemId()==R.id.menuSearch)
-//                {
-//                    MenuItem myActionMenuItem = toolbar.getMenu().findItem(R.id.menuSearch);
-//                    SearchView searchView = (SearchView)myActionMenuItem.getActionView();
-//                    searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-//                        @Override
-//                        public boolean onQueryTextSubmit(String query) {
-//                            return false;
-//                        }
-//
-//                        @Override
-//                        public boolean onQueryTextChange(String newText) {
-//                            if(TextUtils.isEmpty(newText))
-//                            {
-//
-//                            }
-//                            return false;
-//                        }
-//                    });
-//                }
                 return false;
             }
         });
@@ -184,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 Document document = dataSnapshot.getValue(Document.class);
-                arrayDocument.add(new Document(document.getName(), document.getText(), document.getImage(),document.getEmail()));
+                arrayDocument.add(new Document(document.getName(), document.getText(), document.getImage(),document.getEmail(),document.getEmailShare()));
                 adapter.notifyDataSetChanged();
             }
 

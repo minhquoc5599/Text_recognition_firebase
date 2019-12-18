@@ -73,7 +73,7 @@ public class OcrActivity extends AppCompatActivity {
                     }
                     else
                     {
-                        Calendar calendar =Calendar.getInstance();
+                        Calendar calendar = Calendar.getInstance();
                         StorageReference mountainsRef = storageRef.child("image"+calendar.getTimeInMillis()+".png");
                         img.setDrawingCacheEnabled(true);
                         img.buildDrawingCache();
@@ -104,7 +104,8 @@ public class OcrActivity extends AppCompatActivity {
                                         String text = "";
                                         assert user != null;
                                         String email = user.getEmail();
-                                        Document document = new Document(name, text, downloadUri, email);
+                                        String emailShare = "";
+                                        Document document = new Document(name, text, downloadUri, email, emailShare);
                                         mData.child("Document").push().setValue(document, new DatabaseReference.CompletionListener() {
                                             @Override
                                             public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {

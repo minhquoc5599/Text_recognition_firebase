@@ -5,17 +5,19 @@ public class Document {
     private String text;
     private String image;
     private String email;
+    private String emailShare;
 
     public Document()
     {
 
     }
 
-    public Document(String name, String text, String image, String email) {
+    public Document(String name, String text, String image, String email, String emailShare) {
         this.name = name;
         this.text = text;
         this.image = image;
         this.email = email;
+        this.emailShare = emailShare;
     }
 
     public String getName() {
@@ -48,5 +50,13 @@ public class Document {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getEmailShare() {
+        return emailShare;
+    }
+
+    public void setEmailShare(String emailShare) {
+        this.emailShare = emailShare;
     }
 }

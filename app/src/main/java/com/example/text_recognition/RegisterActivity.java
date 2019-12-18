@@ -1,8 +1,11 @@
 package com.example.text_recognition;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,6 +19,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -23,6 +29,7 @@ public class RegisterActivity extends AppCompatActivity {
     Button btnRegister;
     EditText registerEmail, registerPass;
     FirebaseAuth mAuth;
+    DatabaseReference mData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,13 +42,14 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         mAuth = FirebaseAuth.getInstance();
+        mData = FirebaseDatabase.getInstance().getReference();
 
         Mapping();
 
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email = registerEmail.getText().toString().trim();
+                final String email = registerEmail.getText().toString().trim();
                 String password = registerPass.getText().toString().trim();
                 if(email.isEmpty())
                 {
@@ -68,6 +76,20 @@ public class RegisterActivity extends AppCompatActivity {
                             }
                             else
                             {
+                                Users users = new Users(email);
+                                mData.child("Users").push().setValue(users, new DatabaseReference.CompletionListener() {
+                                    @Override
+                                    public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                                        if(databaseError==null)
+                                        {
+                                            Toast.makeText(RegisterActivity.this, "Lưu dữ liệu thành công", Toast.LENGTH_SHORT).show();
+                                        }
+                                        else
+                                        {
+                                            Toast.makeText(RegisterActivity.this, "Lỗi dữ liệu!!!", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
                                 Toast.makeText(RegisterActivity.this, "Đăng ký thành công", Toast.LENGTH_SHORT).show();
                                 startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
                             }
