@@ -36,13 +36,12 @@ import java.util.ArrayList;
 public class HomeFragment extends Fragment {
 
     FloatingActionButton btn;
-    static boolean count;
     ListView lvDocument;
     ArrayList<Document> arrayDocument ;
     DatabaseReference mData;
     DocumentAdapter adapter = null;
     public static final String URL_IMAGE = "URL_IMAGE";
-    FirebaseAuth mAuth =FirebaseAuth.getInstance();
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser user = mAuth.getCurrentUser();
     FirebaseStorage storage = FirebaseStorage.getInstance();
 
@@ -51,7 +50,6 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         LinearLayout linearLayout = (LinearLayout) inflater.inflate(R.layout.fragment_home, container, false);
 
-        count = false;
         btn =linearLayout.findViewById(R.id.icAdd);
         lvDocument = linearLayout.findViewById(R.id.lvDocument);
         arrayDocument = new ArrayList<>();

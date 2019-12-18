@@ -35,7 +35,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:cardUseCompatPadding="true"
-                    app:cardElevation="3dp">
+                    app:cardElevation="3dp"
+                    android:layout_marginBottom="20dp">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -69,7 +70,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:cardUseCompatPadding="true"
-                    app:cardElevation="3dp">
+                    app:cardElevation="3dp"
+                    android:layout_marginBottom="20dp">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -91,6 +93,38 @@
                             android:layout_width="350dp"
                             android:layout_height="350dp"
                             android:layout_marginBottom="10dp"/>
+
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardUseCompatPadding="true"
+                    app:cardElevation="3dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        tools:ignore="UselessLeaf"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:padding="10dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Share for user"
+                            android:textSize="25sp"
+                            android:textColor="@color/colorPrimary"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:id="@+id/emailUser"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:padding="5dp"
+                            android:textColor="#FF000000"
+                            android:textSize="20sp"
+                            android:autofillHints="" />
 
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>

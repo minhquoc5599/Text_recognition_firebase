@@ -1,6 +1,7 @@
 package com.example.text_recognition;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,8 +27,10 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.SparseArray;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +41,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -54,6 +58,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Locale;
 
 
@@ -61,12 +66,15 @@ public class EditActivity extends AppCompatActivity {
 
     EditText editText;
     ImageView imageView;
-    TextView copy, exportPDF, exportTxt, share, update, delete, ocr;
+    TextView emailUser, copy, exportPDF, exportTxt, share, update, delete, ocr;
     Toolbar toolbarOcr;
-    DatabaseReference mData =FirebaseDatabase.getInstance().getReference();
+    DatabaseReference mData = FirebaseDatabase.getInstance().getReference();
     FirebaseStorage storage = FirebaseStorage.getInstance();
     int REQUEST_CODE_READ_WRITE_STORAGE_PDF = 123;
     int REQUEST_CODE_READ_WRITE_STORAGE_TEXT = 133;
+
+    ArrayList<Users> arrayUsers;
+    UsersAdapter adapter = null;
 
 
 
@@ -83,6 +91,12 @@ public class EditActivity extends AppCompatActivity {
         assert image != null;
         final StorageReference mImage = storage.getReferenceFromUrl(image);
         LoadData(query);
+        ListView lvUsers = new ListView(this);
+        arrayUsers = new ArrayList<>();
+        adapter = new UsersAdapter(EditActivity.this, R.layout.users_row, arrayUsers);
+        lvUsers.setAdapter(adapter);
+        LoadEmailUsers();
+
 
         copy.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,7 +129,7 @@ public class EditActivity extends AppCompatActivity {
         share.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showShare();
+                showShare(query);
 
             }
         });
@@ -138,6 +152,25 @@ public class EditActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Ocr();
+            }
+        });
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(EditActivity.this);
+        builder.setCancelable(true);
+        builder.setView(lvUsers);
+        final AlertDialog dialog = builder.create();
+
+        emailUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.show();
+            }
+        });
+        lvUsers.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                emailUser.setText(arrayUsers.get(position).getEmail());
+                dialog.dismiss();
             }
         });
     }
@@ -185,8 +218,8 @@ public class EditActivity extends AppCompatActivity {
             editText.setText(stringBuilder.toString());
         }
     }
-    private void showShare() {
-        String [] items ={"Share Text", "Share Image"};
+    private void showShare(final Query query) {
+        String [] items ={"Share Text", "Share Image", "Share for user"};
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Share");
         dialog.setItems(items, new DialogInterface.OnClickListener() {
@@ -200,9 +233,31 @@ public class EditActivity extends AppCompatActivity {
                 {
                     shareImage();
                 }
+                if(which==2)
+                {
+                    shareForUser(query);
+                }
             }
         });
         dialog.create().show();
+    }
+
+    private void shareForUser(Query query) {
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot ds: dataSnapshot.getChildren())
+                {
+                    String email = emailUser.getText().toString();
+                    ds.getRef().child("emailShare").setValue(email);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void Update(Query query) {
@@ -265,6 +320,8 @@ public class EditActivity extends AppCompatActivity {
                 {
                     String text = "" + ds.child("text").getValue();
                     editText.setText(text);
+                    String email = "" + ds.child("emailShare").getValue();
+                    emailUser.setText(email);
                     String image = "" + ds.child("image").getValue();
                     try{
                         Picasso.get().load(image).into(imageView);
@@ -304,6 +361,7 @@ public class EditActivity extends AppCompatActivity {
         toolbarOcr = findViewById(R.id.toolbarOcr);
         editText = findViewById(R.id.result);
         imageView = findViewById(R.id.imageResult);
+        emailUser = findViewById(R.id.emailUser);
         copy = findViewById(R.id.btnCopy);
         exportPDF = findViewById(R.id.exportPDF);
         exportTxt = findViewById(R.id.exportTxt);
@@ -472,4 +530,38 @@ public class EditActivity extends AppCompatActivity {
         }
 
     }
+
+    private void LoadEmailUsers()
+    {
+        mData.child("Users").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Users users = dataSnapshot.getValue(Users.class);
+                assert users != null;
+                arrayUsers.add(new Users(users.getEmail()));
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
 }

@@ -104,7 +104,7 @@ public class OcrActivity extends AppCompatActivity {
                                         String text = "";
                                         assert user != null;
                                         String email = user.getEmail();
-                                        String emailShare = "";
+                                        String emailShare = "Thêm vào email cần chia sẻ";
                                         Document document = new Document(name, text, downloadUri, email, emailShare);
                                         mData.child("Document").push().setValue(document, new DatabaseReference.CompletionListener() {
                                             @Override
