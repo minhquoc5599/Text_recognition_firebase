@@ -78,7 +78,7 @@ public class EditActivity extends AppCompatActivity {
         Connect();
         actionToolbar();
         Intent intent = getIntent();
-        String image = intent.getStringExtra(MainActivity.URL_IMAGE);
+        String image = intent.getStringExtra(HomeFragment.URL_IMAGE);
         final Query query = mData.child("Document").orderByChild("image").equalTo(image);
         assert image != null;
         final StorageReference mImage = storage.getReferenceFromUrl(image);
