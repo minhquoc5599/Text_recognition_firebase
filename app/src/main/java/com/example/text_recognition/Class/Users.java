@@ -1,4 +1,4 @@
-package com.example.text_recognition;
+package com.example.text_recognition.Class;
 
 public class Users {
     private String email;

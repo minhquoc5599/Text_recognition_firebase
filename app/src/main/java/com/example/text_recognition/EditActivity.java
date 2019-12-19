@@ -35,7 +35,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-
+import com.example.text_recognition.Adapter.UsersAdapter;
+import com.example.text_recognition.Class.Users;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.vision.Frame;

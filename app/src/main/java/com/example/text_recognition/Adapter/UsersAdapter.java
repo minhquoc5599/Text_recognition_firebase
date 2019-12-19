@@ -1,38 +1,38 @@
-package com.example.text_recognition;
+package com.example.text_recognition.Adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
-import com.squareup.picasso.Picasso;
+
+import com.example.text_recognition.Class.Users;
+import com.example.text_recognition.R;
+import com.example.text_recognition.Class.Users;
 
 import java.util.List;
-import java.util.Locale;
 
-public class DocumentAdapter extends BaseAdapter {
-
-
+public class UsersAdapter extends BaseAdapter {
     private Context context;
     private int layout;
-    private List<Document> arrayDocument;
+    private List<Users> arrayUsers ;
 
-    DocumentAdapter(Context context, int layout, List<Document> arrayDocument) {
+    public UsersAdapter(Context context, int layout, List<Users> arrayUsers) {
         this.context = context;
         this.layout = layout;
-        this.arrayDocument = arrayDocument;
+        this.arrayUsers = arrayUsers;
     }
+
 
     @Override
     public int getCount() {
-        return arrayDocument.size();
+        return arrayUsers.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return arrayDocument.get(position);
+        return arrayUsers.get(position);
     }
 
     @Override
@@ -42,29 +42,25 @@ public class DocumentAdapter extends BaseAdapter {
 
     private class ViewHolder
     {
-        TextView name;
-        ImageView image;
-
+        TextView emailUser;
     }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = convertView;
-        ViewHolder holder = new ViewHolder();
+        UsersAdapter.ViewHolder holder = new UsersAdapter.ViewHolder();
         if(rowView == null)
         {
             rowView = inflater.inflate(layout, null);
-            holder.name = rowView.findViewById(R.id.name);
-            holder.image = rowView.findViewById(R.id.imageDocument);
+            holder.emailUser = rowView.findViewById(R.id.emailUser);
             rowView.setTag(holder);
         }else {
-            holder = (ViewHolder) rowView.getTag();
+            holder = (UsersAdapter.ViewHolder) rowView.getTag();
 
         }
-        holder.name.setText(arrayDocument.get(position).getName());
-        Picasso.get().load(arrayDocument.get(position).getImage()).into(holder.image);
+        holder.emailUser.setText(arrayUsers.get(position).getEmail());
 
         return rowView;
     }
-
 }
