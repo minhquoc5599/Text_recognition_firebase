@@ -52,7 +52,7 @@ public class ShareFragment extends Fragment {
         lvShare.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getActivity(), EditActivity.class);
+                Intent intent = new Intent(getActivity(), EditShareActivity.class);
                 String image = arrayDocument.get(position).getImage();
                 intent.putExtra(URL_IMAGE, image);
                 startActivity(intent);

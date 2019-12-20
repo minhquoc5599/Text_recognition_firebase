@@ -1,13 +1,11 @@
 package com.example.text_recognition;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
-
 
 import android.Manifest;
 import android.content.ClipData;
@@ -27,80 +25,53 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.SparseArray;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.example.text_recognition.Adapter.UsersAdapter;
-import com.example.text_recognition.Class.Users;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
-
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Locale;
 
-
-public class EditActivity extends AppCompatActivity {
+public class EditShareActivity extends AppCompatActivity {
 
     EditText editText;
     ImageView imageView;
     TextView emailUser, copy, exportPDF, exportTxt, share, update, delete, ocr;
-    Toolbar toolbarEdit;
+    Toolbar toolbarEditShare;
     DatabaseReference mData = FirebaseDatabase.getInstance().getReference();
-    FirebaseStorage storage = FirebaseStorage.getInstance();
     int REQUEST_CODE_READ_WRITE_STORAGE_PDF = 123;
     int REQUEST_CODE_READ_WRITE_STORAGE_TEXT = 133;
-
-    ArrayList<Users> arrayUsers;
-    UsersAdapter adapter = null;
-    FirebaseAuth mAuth = FirebaseAuth.getInstance();
-    FirebaseUser mUser = mAuth.getCurrentUser();
-
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit);
+        setContentView(R.layout.activity_edit_share);
 
         Connect();
         actionToolbar();
         Intent intent = getIntent();
         String image = intent.getStringExtra(HomeFragment.URL_IMAGE);
         final Query query = mData.child("Document").orderByChild("image").equalTo(image);
-        assert image != null;
-        final StorageReference mImage = storage.getReferenceFromUrl(image);
         LoadData(query);
-        ListView lvUsers = new ListView(this);
-        arrayUsers = new ArrayList<>();
-        adapter = new UsersAdapter(EditActivity.this, R.layout.users_row, arrayUsers);
-        lvUsers.setAdapter(adapter);
-        LoadEmailUsers();
 
 
         copy.setOnClickListener(new View.OnClickListener() {
@@ -113,7 +84,7 @@ public class EditActivity extends AppCompatActivity {
         exportPDF.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ActivityCompat.requestPermissions(EditActivity.this,
+                ActivityCompat.requestPermissions(EditShareActivity.this,
                         new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
                                 Manifest.permission.READ_EXTERNAL_STORAGE},
                         REQUEST_CODE_READ_WRITE_STORAGE_PDF);
@@ -123,7 +94,7 @@ public class EditActivity extends AppCompatActivity {
         exportTxt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ActivityCompat.requestPermissions(EditActivity.this,
+                ActivityCompat.requestPermissions(EditShareActivity.this,
                         new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
                                 Manifest.permission.READ_EXTERNAL_STORAGE},
                         REQUEST_CODE_READ_WRITE_STORAGE_TEXT);
@@ -134,7 +105,7 @@ public class EditActivity extends AppCompatActivity {
         share.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showShare(query);
+                showShare();
 
             }
         });
@@ -149,7 +120,7 @@ public class EditActivity extends AppCompatActivity {
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Delete(query, mImage);
+                Delete(query);
             }
         });
 
@@ -159,31 +130,12 @@ public class EditActivity extends AppCompatActivity {
                 Ocr();
             }
         });
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(EditActivity.this);
-        builder.setCancelable(true);
-        builder.setView(lvUsers);
-        final AlertDialog dialog = builder.create();
-
-        emailUser.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.show();
-            }
-        });
-        lvUsers.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                emailUser.setText(arrayUsers.get(position).getEmail());
-                dialog.dismiss();
-            }
-        });
     }
 
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if(requestCode==REQUEST_CODE_READ_WRITE_STORAGE_PDF && grantResults.length>0 && grantResults[0]==PackageManager.PERMISSION_GRANTED)
+        if(requestCode==REQUEST_CODE_READ_WRITE_STORAGE_PDF && grantResults.length>0 && grantResults[0]== PackageManager.PERMISSION_GRANTED)
         {
             imageToPdf();
         }
@@ -193,7 +145,7 @@ public class EditActivity extends AppCompatActivity {
         }
         else
         {
-            Toast.makeText(EditActivity.this,"Bạn không thể ghi file", Toast.LENGTH_SHORT).show();
+            Toast.makeText(EditShareActivity.this,"Bạn không thể ghi file", Toast.LENGTH_SHORT).show();
         }
 
 
@@ -223,8 +175,8 @@ public class EditActivity extends AppCompatActivity {
             editText.setText(stringBuilder.toString());
         }
     }
-    private void showShare(final Query query) {
-        String [] items ={"Share Text", "Share Image", "Share for user"};
+    private void showShare() {
+        String [] items ={"Share Text", "Share Image"};
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Share");
         dialog.setItems(items, new DialogInterface.OnClickListener() {
@@ -238,31 +190,9 @@ public class EditActivity extends AppCompatActivity {
                 {
                     shareImage();
                 }
-                if(which==2)
-                {
-                    shareForUser(query);
-                }
             }
         });
         dialog.create().show();
-    }
-
-    private void shareForUser(Query query) {
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for(DataSnapshot ds: dataSnapshot.getChildren())
-                {
-                    String email = emailUser.getText().toString();
-                    ds.getRef().child("emailShare").setValue(email);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
     }
 
     private void Update(Query query) {
@@ -274,46 +204,35 @@ public class EditActivity extends AppCompatActivity {
                     String text = editText.getText().toString();
                     ds.getRef().child("text").setValue(text);
                 }
-                Toast.makeText(EditActivity.this,"Đã lưu", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EditShareActivity.this,"Đã lưu", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(EditActivity.this, "Lỗi không thể lưu", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EditShareActivity.this, "Lỗi không thể lưu", Toast.LENGTH_SHORT).show();
             }
         });
 
     }
 
-    private void Delete(Query query, StorageReference mImage) {
+    private void Delete(Query query) {
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for(DataSnapshot ds: dataSnapshot.getChildren())
                 {
-                    ds.getRef().removeValue();
+                    String user ="Thêm vào email cần chia sẻ";
+                    ds.getRef().child("emailShare").setValue(user);
                 }
-                Toast.makeText(EditActivity.this,"Xoá file thành công", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EditShareActivity.this,"Xoá file thành công", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(EditActivity.this, "Lỗi không thể xoá", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EditShareActivity.this, "Lỗi không thể xoá", Toast.LENGTH_SHORT).show();
             }
         });
-
-        mImage.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Toast.makeText(EditActivity.this, "Xoá ảnh thành công", Toast.LENGTH_SHORT).show();
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(EditActivity.this, "Lỗi: "+ e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-        Intent intent = new Intent(EditActivity.this, MainActivity.class);
+        Intent intent = new Intent(EditShareActivity.this, MainActivity.class);
         startActivity(intent);
     }
 
@@ -325,7 +244,7 @@ public class EditActivity extends AppCompatActivity {
                 {
                     String text = "" + ds.child("text").getValue();
                     editText.setText(text);
-                    String email = "" + ds.child("emailShare").getValue();
+                    String email = "" + ds.child("email").getValue();
                     emailUser.setText(email);
                     String image = "" + ds.child("image").getValue();
                     try{
@@ -340,20 +259,20 @@ public class EditActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(EditActivity.this, "Lỗi!!!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EditShareActivity.this, "Lỗi!!!", Toast.LENGTH_SHORT).show();
 
             }
         });
     }
 
     private void actionToolbar() {
-        setSupportActionBar(toolbarEdit);
+        setSupportActionBar(toolbarEditShare);
         ActionBar actionBar = getSupportActionBar();
         if(actionBar!=null)
         {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-        toolbarEdit.setNavigationOnClickListener(new View.OnClickListener() {
+        toolbarEditShare.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
@@ -363,10 +282,10 @@ public class EditActivity extends AppCompatActivity {
 
     private void Connect() {
 
-        toolbarEdit = findViewById(R.id.toolbarEdit);
-        editText = findViewById(R.id.result);
-        imageView = findViewById(R.id.imageEdit);
-        emailUser = findViewById(R.id.emailUser);
+        toolbarEditShare = findViewById(R.id.toolbarEditShare);
+        editText = findViewById(R.id.resultShare);
+        imageView = findViewById(R.id.imageEditShare);
+        emailUser = findViewById(R.id.emailUserShare);
         copy = findViewById(R.id.btnCopy);
         exportPDF = findViewById(R.id.exportPDF);
         exportTxt = findViewById(R.id.exportTxt);
@@ -381,7 +300,7 @@ public class EditActivity extends AppCompatActivity {
         Bitmap bitmap = bitmapDrawable.getBitmap();
 
         try {
-            File file = new File(EditActivity.this.getExternalCacheDir(), "Image.png");
+            File file = new File(EditShareActivity.this.getExternalCacheDir(), "Image.png");
             FileOutputStream fout = new FileOutputStream(file);
             bitmap.compress(Bitmap.CompressFormat.PNG, 80, fout);
             fout.flush();
@@ -395,7 +314,7 @@ public class EditActivity extends AppCompatActivity {
             startActivity(Intent.createChooser(intent, "Select how you want to share the text"));
         }catch (FileNotFoundException e){
             e.printStackTrace();
-            Toast.makeText(EditActivity.this, "File not found", Toast.LENGTH_SHORT).show();
+            Toast.makeText(EditShareActivity.this, "File not found", Toast.LENGTH_SHORT).show();
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -420,7 +339,7 @@ public class EditActivity extends AppCompatActivity {
         {
             clipboardManager.setPrimaryClip(clip);
         }
-        Toast.makeText(EditActivity.this, "Text copied to clipboard", Toast.LENGTH_SHORT).show();
+        Toast.makeText(EditShareActivity.this, "Text copied to clipboard", Toast.LENGTH_SHORT).show();
 
     }
     private void imageToPdf() {
@@ -458,7 +377,7 @@ public class EditActivity extends AppCompatActivity {
         }
         if(!mkdir)
         {
-            Toast.makeText(EditActivity.this, "Tạo thư mục thất bại!!!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(EditShareActivity.this, "Tạo thư mục thất bại!!!", Toast.LENGTH_SHORT).show();
         }
         else
         {
@@ -468,7 +387,7 @@ public class EditActivity extends AppCompatActivity {
             {
                 fileOutputStream = new FileOutputStream(filePdf);
                 pdfDocument.writeTo(fileOutputStream);
-                Toast.makeText(EditActivity.this,"Image is saved to " + folder+ "/"+ namePdf +".pdf", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EditShareActivity.this,"Image is saved to " + folder+ "/"+ namePdf +".pdf", Toast.LENGTH_SHORT).show();
             }catch (IOException e)
             {
                 e.printStackTrace();
@@ -507,7 +426,7 @@ public class EditActivity extends AppCompatActivity {
         }
         if(!mkdir)
         {
-            Toast.makeText(EditActivity.this, "Tạo thư mục thất bại!!!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(EditShareActivity.this, "Tạo thư mục thất bại!!!", Toast.LENGTH_SHORT).show();
         }
         else
         {
@@ -516,7 +435,7 @@ public class EditActivity extends AppCompatActivity {
             try{
                 fout = new FileOutputStream(newTxt);
                 fout.write(text.getBytes());
-                Toast.makeText(EditActivity.this, "Text is saved to " +folder +"/" + nameTxt +".txt",Toast.LENGTH_SHORT).show();
+                Toast.makeText(EditShareActivity.this, "Text is saved to " +folder +"/" + nameTxt +".txt",Toast.LENGTH_SHORT).show();
             } catch (IOException e)
             {
                 e.printStackTrace();
@@ -536,40 +455,5 @@ public class EditActivity extends AppCompatActivity {
 
     }
 
-    private void LoadEmailUsers()
-    {
-        mData.child("Users").addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Users users = dataSnapshot.getValue(Users.class);
-                assert users != null;
-                if(!users.getEmail().equals(mUser.getEmail()))
-                {
-                    arrayUsers.add(new Users(users.getEmail()));
-                    adapter.notifyDataSetChanged();
-                }
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
-
 }
+
