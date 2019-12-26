@@ -14,7 +14,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
-        <activity android:name=".EditShareActivity"></activity>
+        <activity android:name=".EditImageActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".EditShareActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".RegisterActivity"
             android:screenOrientation="portrait" />

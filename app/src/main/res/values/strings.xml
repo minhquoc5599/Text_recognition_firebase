@@ -2,4 +2,8 @@
     <string name="app_name">Text Recognition</string>
     <string name="result">Recognized Text</string>
     <string name="name_login">Welcome to Text Recognition</string>
+    <string name="editImage">Edit Image</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

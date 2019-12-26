@@ -69,12 +69,13 @@ public class EditActivity extends AppCompatActivity {
 
     EditText editText;
     ImageView imageView;
-    TextView emailUser, copy, exportPDF, exportTxt, share, update, delete, ocr;
+    TextView emailUser, copy, exportPDF, exportTxt, share, update, delete, ocr, editImage;
     Toolbar toolbarEdit;
     DatabaseReference mData = FirebaseDatabase.getInstance().getReference();
     FirebaseStorage storage = FirebaseStorage.getInstance();
     int REQUEST_CODE_READ_WRITE_STORAGE_PDF = 123;
     int REQUEST_CODE_READ_WRITE_STORAGE_TEXT = 133;
+    public static final String URL_EDIT_IMAGE = "URL_EDIT_IMAGE";
 
     ArrayList<Users> arrayUsers;
     UsersAdapter adapter = null;
@@ -91,7 +92,7 @@ public class EditActivity extends AppCompatActivity {
         Connect();
         actionToolbar();
         Intent intent = getIntent();
-        String image = intent.getStringExtra(HomeFragment.URL_IMAGE);
+        final String image = intent.getStringExtra(HomeFragment.URL_IMAGE);
         final Query query = mData.child("Document").orderByChild("image").equalTo(image);
         assert image != null;
         final StorageReference mImage = storage.getReferenceFromUrl(image);
@@ -159,6 +160,12 @@ public class EditActivity extends AppCompatActivity {
                 Ocr();
             }
         });
+        editImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editImage(image);
+            }
+        });
 
         AlertDialog.Builder builder = new AlertDialog.Builder(EditActivity.this);
         builder.setCancelable(true);
@@ -178,6 +185,12 @@ public class EditActivity extends AppCompatActivity {
                 dialog.dismiss();
             }
         });
+    }
+
+    private void editImage(String image) {
+        Intent intent = new Intent(EditActivity.this, EditImageActivity.class);
+        intent.putExtra(URL_EDIT_IMAGE, image);
+        startActivity(intent);
     }
 
 
@@ -374,6 +387,7 @@ public class EditActivity extends AppCompatActivity {
         update = findViewById(R.id.btnUpdate);
         delete = findViewById(R.id.btnDelete);
         ocr = findViewById(R.id.btnOcr);
+        editImage = findViewById(R.id.btnEditImage);
     }
 
     private void shareImage() {
