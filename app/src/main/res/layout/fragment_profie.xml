@@ -8,7 +8,7 @@
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:id="@+id/toolbarProfie"
+        android:id="@+id/toolbarLogOut"
         app:title="@string/app_name"
         android:background="@color/colorToolBar"
         app:layout_collapseMode="pin"
@@ -20,12 +20,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center">
-
-        <Button
-            android:id="@+id/btnLogout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Log out"/>
     </LinearLayout>
 
 

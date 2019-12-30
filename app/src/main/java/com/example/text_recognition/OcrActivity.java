@@ -1,5 +1,6 @@
 package com.example.text_recognition;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -74,59 +76,68 @@ public class OcrActivity extends AppCompatActivity {
                     }
                     else
                     {
-                        Calendar calendar = Calendar.getInstance();
-                        StorageReference mountainsRef = storageRef.child("image"+calendar.getTimeInMillis()+".png");
-                        img.setDrawingCacheEnabled(true);
-                        img.buildDrawingCache();
-                        Bitmap bitmap = ((BitmapDrawable) img.getDrawable()).getBitmap();
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-                        byte[] data = baos.toByteArray();
-
-                        UploadTask uploadTask = mountainsRef.putBytes(data);
-                        uploadTask.addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(OcrActivity.this, "Lỗi!!!", Toast.LENGTH_SHORT).show();
-
-                            }
-                        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                taskSnapshot.getStorage().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        AlertDialog.Builder dialog = new AlertDialog.Builder(OcrActivity.this);
+                        dialog.setMessage("Do you want remove "+ name +" ?")
+                                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                                     @Override
-                                    public void onSuccess(Uri uri) {
-                                        String downloadUri = uri.toString();
-                                        Toast.makeText(OcrActivity.this, "Lưu hình thành công", Toast.LENGTH_SHORT).show();
-                                        Log.d("AAA", downloadUri);
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        Calendar calendar = Calendar.getInstance();
+                                        StorageReference mountainsRef = storageRef.child("image"+calendar.getTimeInMillis()+".png");
+                                        img.setDrawingCacheEnabled(true);
+                                        img.buildDrawingCache();
+                                        Bitmap bitmap = ((BitmapDrawable) img.getDrawable()).getBitmap();
+                                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+                                        byte[] data = baos.toByteArray();
 
-                                        // create node database
-                                        String name = nameDoc.getText().toString();
-                                        String text = "";
-                                        assert user != null;
-                                        String email = user.getEmail();
-                                        String emailShare = "Thêm vào email cần chia sẻ";
-                                        Document document = new Document(name, text, downloadUri, email, emailShare);
-                                        mData.child("Document").push().setValue(document, new DatabaseReference.CompletionListener() {
+                                        UploadTask uploadTask = mountainsRef.putBytes(data);
+                                        uploadTask.addOnFailureListener(new OnFailureListener() {
                                             @Override
-                                            public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
-                                                if(databaseError == null)
-                                                {
-                                                    Toast.makeText(OcrActivity.this, "Lưu dữ liệu thành công", Toast.LENGTH_SHORT).show();
-                                                    Intent intent = new  Intent(OcrActivity.this, MainActivity.class);
-                                                    startActivity(intent);
-                                                }
-                                                else
-                                                {
-                                                    Toast.makeText(OcrActivity.this, "Lỗi dữ liệu!!!", Toast.LENGTH_SHORT).show();
-                                                }
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(OcrActivity.this, "Lỗi!!!", Toast.LENGTH_SHORT).show();
+
+                                            }
+                                        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                            @Override
+                                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                                taskSnapshot.getStorage().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                    @Override
+                                                    public void onSuccess(Uri uri) {
+                                                        String downloadUri = uri.toString();
+                                                        Toast.makeText(OcrActivity.this, "Lưu hình thành công", Toast.LENGTH_SHORT).show();
+                                                        Log.d("AAA", downloadUri);
+
+                                                        // create node database
+                                                        String name = nameDoc.getText().toString();
+                                                        String text = "";
+                                                        assert user != null;
+                                                        String email = user.getEmail();
+                                                        String emailShare = "Thêm vào email cần chia sẻ";
+                                                        Document document = new Document(name, text, downloadUri, email, emailShare);
+                                                        mData.child("Document").push().setValue(document, new DatabaseReference.CompletionListener() {
+                                                            @Override
+                                                            public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                                                                if(databaseError == null)
+                                                                {
+                                                                    Toast.makeText(OcrActivity.this, "Lưu dữ liệu thành công", Toast.LENGTH_SHORT).show();
+                                                                    Intent intent = new  Intent(OcrActivity.this, MainActivity.class);
+                                                                    startActivity(intent);
+                                                                }
+                                                                else
+                                                                {
+                                                                    Toast.makeText(OcrActivity.this, "Lỗi dữ liệu!!!", Toast.LENGTH_SHORT).show();
+                                                                }
+                                                            }
+                                                        });
+
+                                                    }
+                                                });
                                             }
                                         });
-
                                     }
-                                });
-                            }
-                        });
+                                })
+                                .setNegativeButton("Cancel", null);
+                        dialog.create().show();
                     }
                 }
                 return false;

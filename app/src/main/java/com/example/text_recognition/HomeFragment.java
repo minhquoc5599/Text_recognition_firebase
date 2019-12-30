@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 import com.example.text_recognition.Adapter.DocumentAdapter;
@@ -46,28 +48,33 @@ public class HomeFragment extends Fragment {
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser user = mAuth.getCurrentUser();
     FirebaseStorage storage = FirebaseStorage.getInstance();
+    Toolbar toolbarHome;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         LinearLayout linearLayout = (LinearLayout) inflater.inflate(R.layout.fragment_home, container, false);
 
-        btn =linearLayout.findViewById(R.id.icAdd);
         lvDocument = linearLayout.findViewById(R.id.lvDocument);
         arrayDocument = new ArrayList<>();
         adapter = new DocumentAdapter(getActivity(), R.layout.document_row, arrayDocument);
         lvDocument.setAdapter(adapter);
         mData = FirebaseDatabase.getInstance().getReference();
-
-        LoadData();
-
-        btn.setOnClickListener(new View.OnClickListener() {
+        toolbarHome = linearLayout.findViewById(R.id.toolbarHome);
+        toolbarHome.inflateMenu(R.menu.menu_add);
+        toolbarHome.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
-            public void onClick(View v) {
-                Intent intent= new Intent(getActivity(), OcrActivity.class);
-                startActivity(intent);
+            public boolean onMenuItemClick(MenuItem item) {
+                if(item.getItemId()==R.id.menuAdd)
+                {
+                    Intent intent= new Intent(getActivity(), OcrActivity.class);
+                    startActivity(intent);
+                }
+                return false;
             }
         });
+
+        LoadData();
         lvDocument.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
